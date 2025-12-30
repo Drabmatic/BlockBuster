@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Buster - Classic Brick Breaker Game</title>
+    <meta name="description" content="Block Buster is a modern brick breaker arcade game with power-ups, global leaderboards, and stunning neon visuals. Free on Google Play.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0f0f1a;
+            --bg-mid: #16213e;
+            --bg-light: #1a1a2e;
+            --cyan: #4ECDC4;
+            --cyan-glow: #00F5FF;
+            --pink: #FF6B6B;
+            --yellow: #FFE66D;
+            --purple: #A66CFF;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-mid) 50%, var(--bg-dark) 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--cyan), var(--cyan-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(166, 108, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-glow) 50%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(0, 245, 255, 0.5);
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--cyan) 0%, #26A69A 100%);
+            color: var(--bg-dark);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(78, 205, 196, 0.6);
+        }
+
+        .cta-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--cyan);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+        }
+
+        /* Power-ups Section */
+        .powerups {
+            padding: 6rem 2rem;
+            background: rgba(22, 33, 62, 0.5);
+        }
+
+        .powerups-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .powerup-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .powerup-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(15, 15, 26, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .powerup-item.multiball {
+            border-color: var(--cyan-glow);
+        }
+
+        .powerup-item.fireball {
+            border-color: #FF4500;
+        }
+
+        .powerup-item.wide {
+            border-color: #00FF00;
+        }
+
+        .powerup-icon {
+            font-size: 2.5rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .powerup-info h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .powerup-info p {
+            color: var(--text-muted);
+        }
+
+        /* Privacy Policy Section */
+        .privacy {
+            padding: 6rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .privacy h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--cyan);
+            margin-bottom: 1.5rem;
+        }
+
+        .privacy h3 {
+            font-size: 1.3rem;
+            color: var(--text);
+            margin: 2rem 0 1rem;
+        }
+
+        .privacy p, .privacy li {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .privacy ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .privacy a {
+            color: var(--cyan);
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(78, 205, 196, 0.2);
+            color: var(--text-muted);
+        }
+
+        footer .logo {
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        footer a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .hero {
+                padding: 5rem 1.5rem 3rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.2rem;
+            }
+
+            .features, .powerups, .privacy {
+                padding: 4rem 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .powerup-item {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Animated background blocks */
+        .floating-blocks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .block {
+            position: absolute;
+            width: 60px;
+            height: 25px;
+            border-radius: 6px;
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .block:nth-child(1) { background: var(--pink); left: 10%; top: 20%; animation-delay: 0s; }
+        .block:nth-child(2) { background: var(--yellow); left: 80%; top: 30%; animation-delay: -5s; }
+        .block:nth-child(3) { background: var(--cyan); left: 30%; top: 70%; animation-delay: -10s; }
+        .block:nth-child(4) { background: var(--purple); left: 70%; top: 80%; animation-delay: -15s; }
+        .block:nth-child(5) { background: var(--pink); left: 50%; top: 50%; animation-delay: -7s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">BLOCK BUSTER</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#powerups">Power-Ups</a></li>
+            <li><a href="#privacy">Privacy</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="floating-blocks">
+            <div class="block"></div>
+            <div class="block"></div>
+            <div class="block"></div>
+            <div class="block"></div>
+            <div class="block"></div>
+        </div>
+        <div class="hero-content">
+            <h1>BLOCK BUSTER</h1>
+            <p class="tagline">Classic Brick Breaker, Reimagined</p>
+            <p class="description">
+                Smash through colorful blocks, collect powerful power-ups, and climb the global leaderboard 
+                in this modern take on the arcade classic. Beautiful neon visuals, smooth gameplay, 
+                and addictive action await!
+            </p>
+            <a href="https://play.google.com/store/apps/details?id=com.blockbuster.game" class="cta-button">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                </svg>
+                Get it on Google Play
+            </a>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <h2 class="section-title">⚡ FEATURES</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3>Classic Gameplay</h3>
+                <p>Intuitive swipe controls make it easy to pick up but hard to master. Break all the blocks to advance through 5 challenging levels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Stunning Visuals</h3>
+                <p>Gorgeous neon glow effects, particle explosions, and smooth 60 FPS animations bring the action to life.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Global Leaderboards</h3>
+                <p>Compete with players worldwide! Climb the ranks and prove you're the ultimate block buster.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔥</div>
+                <h3>Combo System</h3>
+                <p>Chain hits together for massive combo multipliers. The faster you break blocks, the higher your score!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Power-Ups</h3>
+                <p>Collect special power-ups that drop from blocks to gain incredible abilities and clear levels faster.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔊</div>
+                <h3>Satisfying Audio</h3>
+                <p>Every hit, bounce, and explosion comes with crisp sound effects that make gameplay incredibly satisfying.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="powerups" class="powerups">
+        <div class="powerups-container">
+            <h2 class="section-title">💎 POWER-UPS</h2>
+            <div class="powerup-list">
+                <div class="powerup-item multiball">
+                    <div class="powerup-icon">×3</div>
+                    <div class="powerup-info">
+                        <h4>Multi-Ball</h4>
+                        <p>Split into 3 balls for triple the destruction! You only lose a life when all balls are gone.</p>
+                    </div>
+                </div>
+                <div class="powerup-item fireball">
+                    <div class="powerup-icon">🔥</div>
+                    <div class="powerup-info">
+                        <h4>Fireball</h4>
+                        <p>Your ball becomes an unstoppable force! Burn straight through blocks without bouncing for 10 seconds.</p>
+                    </div>
+                </div>
+                <div class="powerup-item wide">
+                    <div class="powerup-icon">↔</div>
+                    <div class="powerup-info">
+                        <h4>Wide Paddle</h4>
+                        <p>Double your paddle width for 15 seconds. Catch balls easier and dominate the game!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="privacy" class="privacy">
+        <h2>Privacy Policy</h2>
+        <p class="last-updated">Last updated: December 30, 2024</p>
+
+        <p>This Privacy Policy describes how Block Buster ("we", "us", or "our") collects, uses, and shares information when you use our mobile application.</p>
+
+        <h3>Information We Collect</h3>
+        <p>Block Buster collects minimal information to provide and improve our services:</p>
+        <ul>
+            <li><strong>Leaderboard Data:</strong> When you submit a score to the global leaderboard, we collect your chosen display name and score. This information is stored using Firebase Realtime Database.</li>
+            <li><strong>Device Information:</strong> Our advertising partners may collect device identifiers and usage data to serve relevant ads.</li>
+            <li><strong>Analytics:</strong> We may collect anonymous usage statistics to understand how players interact with the game and to improve the experience.</li>
+        </ul>
+
+        <h3>Advertising</h3>
+        <p>Block Buster displays advertisements provided by Google AdMob. AdMob may collect and use data to personalize ads. You can learn more about Google's data practices at <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>.</p>
+        <p>You can opt out of personalized advertising in your device settings or by visiting <a href="https://www.google.com/settings/ads" target="_blank">Google Ads Settings</a>.</p>
+
+        <h3>Third-Party Services</h3>
+        <p>We use the following third-party services:</p>
+        <ul>
+            <li><strong>Google AdMob:</strong> For displaying advertisements</li>
+            <li><strong>Firebase Realtime Database:</strong> For storing global leaderboard scores</li>
+        </ul>
+        <p>These services have their own privacy policies governing the use of your information.</p>
+
+        <h3>Data Retention</h3>
+        <p>Leaderboard scores are retained indefinitely unless you request deletion. Advertising data is managed according to Google's retention policies.</p>
+
+        <h3>Children's Privacy</h3>
+        <p>Block Buster is not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us.</p>
+
+        <h3>Your Rights</h3>
+        <p>You may request deletion of your leaderboard data by contacting us at the email below. You can also reset your advertising identifier through your device settings.</p>
+
+        <h3>Changes to This Policy</h3>
+        <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+
+        <h3>Contact Us</h3>
+        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+        <p><a href="mailto:your-email@example.com">your-email@example.com</a></p>
+    </section>
+
+    <footer>
+        <div class="logo">BLOCK BUSTER</div>
+        <p>© 2024 Block Buster. All rights reserved.</p>
+        <p>
+            <a href="#privacy">Privacy Policy</a> · 
+            <a href="mailto:your-email@example.com">Contact</a>
+        </p>
+    </footer>
+</body>
+</html>
